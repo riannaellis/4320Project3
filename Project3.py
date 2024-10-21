@@ -1,4 +1,5 @@
 import requests
+import datetime
 
 API_KEY = 'WFZIS351NY5T9JDF'
 
@@ -31,6 +32,35 @@ def validate_chart_type(chart_type):
         return False, f"Invalid chart type. Available options are: {', '.join(valid_chart_types)}."
     else:
         return True, f"Chart type '{chart_type}' selected."
+    
+# Function to get the start date
+def get_start_date():
+    while(True):
+        start_date = input("Enter start date (YYYY-MM-DD): ")
+        try:
+            parsed_date = start_date.split("-")
+            date = datetime.datetime(int(parsed_date[0]), int(parsed_date[1]), int(parsed_date[2]))
+            break
+        except:
+            print("Please only enter a valid date in YYYY-MM-DD format.")
+        
+    return date
+
+# Function to get the start date
+def get_end_date(start_date):
+    while(True):
+        end_date = input("Enter end date (YYYY-MM-DD): ")
+        try:
+            parsed_date = end_date.split("-")
+            date = datetime.datetime(int(parsed_date[0]), int(parsed_date[1]), int(parsed_date[2]))
+            if (date < start_date):
+                print(f"Please enter an end date that occurs after the start date {start_date}.")
+                continue
+            break
+        except:
+            print("Please only enter a valid date in YYYY-MM-DD format.")
+
+    return date
 
 def main():
     # Step 1: Prompt for stock symbol and validate
@@ -62,6 +92,12 @@ def main():
     
     # Temporary feedback until we get the other functions in
     print(f"\nYou have selected the stock symbol '{symbol}' and chart type '{chart_type}'.")
+
+    #Step 4: Get the start date
+    start_date = get_start_date()
+
+    # Step 5: Get the end date
+    end_date = get_end_date(start_date)
 
 if __name__ == "__main__":
     main()
