@@ -1,7 +1,7 @@
 import requests
 import datetime
-import matplotlib.pyplot as plt
-
+import pygal
+import lxml  
 
 API_KEY = 'WFZIS351NY5T9JDF'
 
@@ -26,8 +26,7 @@ def get_stock_data(symbol, api_key):
     except requests.exceptions.RequestException as e:
         return False, f"Error fetching data: {str(e)}"
 
-
- # Function to fetch and plot stock data   
+# Function to fetch and plot stock data  
 def fetch_and_plot_stock_data(symbol, start_date, end_date, chart_type, api_key):
     # Fetch stock data
     is_valid, data = get_stock_data(symbol, api_key)
@@ -51,20 +50,23 @@ def fetch_and_plot_stock_data(symbol, start_date, end_date, chart_type, api_key)
     dates = list(filtered_data.keys())
     closing_prices = [float(data['4. close']) for data in filtered_data.values()]
     
-    # Plot the data based on the chart type
+    # Create the chart using Pygal
     if chart_type == 'line':
-        plt.plot(dates, closing_prices, label=f'{symbol} Closing Prices')
+        chart = pygal.Line(x_label_rotation=45)  # Line chart
     elif chart_type == 'bar':
-        plt.bar(dates, closing_prices, label=f'{symbol} Closing Prices')
+        chart = pygal.Bar(x_label_rotation=45)  # Bar chart
+
+    # Set chart title and labels
+    chart.title = f'{symbol} Stock Data from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}'
+    chart.x_labels = dates
+    chart.add(symbol, closing_prices)
     
-    # Customize and display the plot
-    plt.xlabel('Date')
-    plt.ylabel('Closing Price (USD)')
-    plt.title(f'{symbol} Stock Data')
-    plt.xticks(rotation=45)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+    # Save chart as an SVG file
+    chart.render_to_file(f'{symbol}_stock_data_chart.svg')
+    
+    # Optionally, open the chart in the web browser
+    import webbrowser
+    webbrowser.open(f'{symbol}_stock_data_chart.svg')
 
 # Function to validate the selected chart type
 def validate_chart_type(chart_type):
@@ -146,4 +148,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
