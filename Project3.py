@@ -27,7 +27,7 @@ def get_stock_data(symbol, api_key):
         return False, f"Error fetching data: {str(e)}"
 
 # Function to fetch and plot stock data  
-def fetch_and_plot_stock_data(symbol, start_date, end_date, chart_type, api_key):
+def fetch_and_plot_stock_data(symbol, start_date, end_date, chart_type, api_key, time_series_choice):
     # Fetch stock data
     is_valid, data = get_stock_data(symbol, api_key)
     
@@ -36,7 +36,7 @@ def fetch_and_plot_stock_data(symbol, start_date, end_date, chart_type, api_key)
         return
     
     # Extract time series data
-    time_series_data = data.get('Time Series (Daily)', {})
+    time_series_data = get_time_series(data, time_series_choice)
     
     # Filter data by date range
     filtered_data = {date: values for date, values in time_series_data.items() 
@@ -99,7 +99,7 @@ def get_start_date():
         
     return date
 
-# Function to get the start date
+# Function to get the end date
 def get_end_date(start_date):
     while(True):
         end_date = input("Enter end date (YYYY-MM-DD): ")
@@ -114,6 +114,48 @@ def get_end_date(start_date):
             print("Please only enter a valid date in YYYY-MM-DD format.")
 
     return date
+
+# Function to get the time series choice
+def get_time_series_choice():
+    while(True):
+        print("\nSelect the time series of the chart you want to generate: \n---------------------------------------------\n")
+        print("1. Intraday\n2. Daily\n3. Weekly\n4. Monthly\n")
+
+        # Get input and convert to integer
+        try:
+            time_series = int(input("Enter time series option (1, 2, 3, 4): "))
+            # Return the correct time series
+            if time_series == 1:
+                return 1
+            elif time_series == 2:
+                return 2
+            elif time_series == 3:
+                return 3
+            elif time_series == 4:
+                return 4
+            else:
+                print("Please only enter 1-4.")
+                continue
+        except:
+            print("Please only enter 1-4.")
+            continue
+
+# Function to get time series data
+def get_time_series(data, time_series):
+    # Return the correct time series data
+    if time_series == 1:
+        time_series_data = data.get('Time Series (Intraday)', {})
+        return time_series_data
+    elif time_series == 2:
+        time_series_data = data.get('Time Series (Daily)', {})
+        return time_series_data
+    elif time_series == 3:
+        time_series_data = data.get('Time Series (Weekly)', {})
+        return time_series_data
+    elif time_series == 4:
+        time_series_data = data.get('Time Series (Monthly)', {})
+        return time_series_data
+    
 
 def main():
     # Step 1: Prompt for stock symbol and validate
@@ -142,9 +184,6 @@ def main():
             break
         else:
             print(f"Error: {message}")
-    
-    # Temporary feedback until we get the other functions in
-    print(f"\nYou have selected the stock symbol '{symbol}' and chart type '{chart_type}'.")
 
     #Step 4: Get the start date
     start_date = get_start_date()
@@ -152,8 +191,11 @@ def main():
     # Step 5: Get the end date
     end_date = get_end_date(start_date)
 
-     # Step 6: Call the new function to fetch and plot stock data
-    fetch_and_plot_stock_data(symbol, start_date, end_date, chart_type, API_KEY)
+    # Step 6: Get time series function
+    time_series_choice = get_time_series_choice()
+
+    # Step 7: Call the new function to fetch and plot stock data
+    fetch_and_plot_stock_data(symbol, start_date, end_date, chart_type, API_KEY, time_series_choice)
 
 if __name__ == "__main__":
     main()
