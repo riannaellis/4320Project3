@@ -48,25 +48,34 @@ def fetch_and_plot_stock_data(symbol, start_date, end_date, chart_type, api_key)
     
     # Prepare data for plotting
     dates = list(filtered_data.keys())
-    closing_prices = [float(data['4. close']) for data in filtered_data.values()]
+    open_prices = [float(data['1. open']) for data in filtered_data.values()]
+    high_prices = [float(data['2. high']) for data in filtered_data.values()]
+    low_prices = [float(data['3. low']) for data in filtered_data.values()]
+    close_prices = [float(data['4. close']) for data in filtered_data.values()]
     
-    # Create the chart using Pygal
+    # Create the chart using Pygal based on the selected chart type
     if chart_type == 'line':
-        chart = pygal.Line(x_label_rotation=45)  # Line chart
+        chart = pygal.Line(x_label_rotation=45) # Line chart
     elif chart_type == 'bar':
-        chart = pygal.Bar(x_label_rotation=45)  # Bar chart
+        chart = pygal.Bar(x_label_rotation=45) # Bar chart 
 
     # Set chart title and labels
     chart.title = f'{symbol} Stock Data from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}'
     chart.x_labels = dates
-    chart.add(symbol, closing_prices)
+
+    # Add each series to the chart (Open, High, Low, Close)
+    chart.add('Open', open_prices)
+    chart.add('High', high_prices)
+    chart.add('Low', low_prices)
+    chart.add('Close', close_prices)
     
     # Save chart as an SVG file
     chart.render_to_file(f'{symbol}_stock_data_chart.svg')
     
-    # Optionally, open the chart in the web browser
+    # Open the chart in the web browser
     import webbrowser
     webbrowser.open(f'{symbol}_stock_data_chart.svg')
+
 
 # Function to validate the selected chart type
 def validate_chart_type(chart_type):
